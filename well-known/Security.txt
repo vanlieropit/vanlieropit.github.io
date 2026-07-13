@@ -1,0 +1,4 @@
+Contact: mailto:security@vanlierop.it
+Expires: 2036-07-13T18:53:00Z
+Canonical: https://vanlierop.it/.well-known/security.txt
+Preferred-Languages: en, nl
