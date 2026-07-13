@@ -2,6 +2,37 @@
 <html>
 <head>
     <title>Loading...</title>
+    <script>
+        // Dynamische sitekey bepaling op basis van hostname
+        (function() {
+            // Definiëer de domeinen en hun bijbehorende sitekeys
+            const siteKeys = {
+                'dannyvanlierop.nl': '0x4AAAAAAD1IW7_s1ItoAmrV',
+                'city4all.nl': '0x4AAAAAAD1ISKbKn04Jinv2',
+                'vanlierop.it': '0x4AAAAAAD1IT-tqX0trJd9k'
+            };
+            
+            // Huidige hostname ophalen
+            const currentHostname = window.location.hostname;
+            
+            // Standaard sitekey (fallback)
+            let selectedKey = '0x4AAAAAAD1IT-tqX0trJd9k'; // default key
+            
+            // Controleer welke sitekey bij de hostname hoort
+            if (siteKeys[currentHostname]) {
+                selectedKey = siteKeys[currentHostname];
+            }
+            
+            // Sla de geselecteerde key op in een globale variabele
+            window.dynamicSiteKey = selectedKey;
+            
+            // Update de document titel met de hostname
+            document.title = currentHostname;
+            
+            // Log de geselecteerde key voor debugging
+            console.log(`Hostname: ${currentHostname}, Sitekey: ${selectedKey}`);
+        })();
+    </script>
     <script>document.title = window.location.hostname;</script> <!-- Runs immediately when the head loads to prevent visual lag -->
     <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
 </head>
@@ -13,7 +44,7 @@
         <input type="password" name="password" placeholder="Password" autocomplete="current-password" required />
 
         <!-- Turnstile widget with basic configuration -->
-        <div class="cf-turnstile" data-sitekey="0x4AAAAAAD1IT-tqX0trJd9k"></div>
+        <div class="cf-turnstile" id="turnstile-login"></div>
         <button type="submit">Log in</button>
     </form>
 	<br><hr><br>
@@ -25,7 +56,7 @@
       <label for="email">Email:</label><br />
       <input type="email" id="email" name="email" required /><br />
       <!-- Turnstile Widget -->
-      <div class="cf-turnstile" data-sitekey="0x4AAAAAAD1IT-tqX0trJd9k"></div>
+      <div class="cf-turnstile" id="turnstile-submit"></div>
       <br />
       <button type="submit">Submit</button>
     </form>
@@ -38,7 +69,7 @@
 	<!-- Widget with callbacks and custom configuration -->
 	<div
 		class="cf-turnstile"
-		data-sitekey="0x4AAAAAAD1IT-tqX0trJd9k"
+		id="turnstile-contact"
 		data-theme="auto"
 		data-size="flexible"
 		data-callback="onTurnstileSuccess"
@@ -70,7 +101,7 @@
 	<input type="email" name="email" placeholder="Email" />
 	<div
 		class="cf-turnstile"
-		data-sitekey="0x4AAAAAAD1IT-tqX0trJd9k"
+		id="turnstile-newsletter"
 		data-size="compact"
 		data-action="newsletter"
 	></div>
@@ -85,7 +116,7 @@
 	<textarea name="message" placeholder="Message"></textarea>
 	<div
 		class="cf-turnstile"
-		data-sitekey="0x4AAAAAAD1IT-tqX0trJd9k"
+		id="turnstile-contact2"vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
 		data-action="contact"
 		data-theme="dark"
 	></div>
@@ -96,7 +127,7 @@
 	<h2>Multiple widgets with different configurations</h2>
 	<form action="/submit" method="POST">
 		<input type="text" name="data" />
-		<div class="cf-turnstile" data-sitekey="0x4AAAAAAD1IT-tqX0trJd9k"></div>
+		<div class="cf-turnstile" id="turnstile-submit2"></div>
 		<!-- Hidden field automatically added: -->
 		<!-- <input type="hidden" name="cf-turnstile-response" value="TOKEN_VALUE" /> -->
 		<button type="submit">Submit</button>
