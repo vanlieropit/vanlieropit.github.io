@@ -5,40 +5,48 @@
     <script>
         // Dynamische sitekey bepaling op basis van hostname
         (function() {
-            // Definiëer de domeinen en hun bijbehorende sitekeys
+            // Definieer de domeinen en hun bijbehorende sitekeys
             const siteKeys = {
                 'dannyvanlierop.nl': '0x4AAAAAAD1IW7_s1ItoAmrV',
                 'city4all.nl': '0x4AAAAAAD1ISKbKn04Jinv2',
                 'vanlierop.it': '0x4AAAAAAD1IT-tqX0trJd9k'
             };
-            
+
             // Huidige hostname ophalen
             const currentHostname = window.location.hostname;
-            
+
             // Standaard sitekey (fallback)
-            let selectedKey = '0x4AAAAAAD1IT-tqX0trJd9k'; // default key
-            
+            let selectedKey = '0x4AAAAAAD1GxMSQUMVkJrya'; // default key
+
             // Controleer welke sitekey bij de hostname hoort
             if (siteKeys[currentHostname]) {
                 selectedKey = siteKeys[currentHostname];
             }
-            
+
             // Sla de geselecteerde key op in een globale variabele
             window.dynamicSiteKey = selectedKey;
-            
+
             // Update de document titel met de hostname
             document.title = currentHostname;
-            
+
             // Log de geselecteerde key voor debugging
             console.log(`Hostname: ${currentHostname}, Sitekey: ${selectedKey}`);
         })();
+
+        // Pas de sitekey toe op alle Turnstile widgets zodra de DOM klaar is.
+        // Dit moet gebeuren VOORDAT het Turnstile script de widgets rendert,
+        // dus we luisteren naar DOMContentLoaded en gebruiken async/defer op het api.js script.
+        document.addEventListener('DOMContentLoaded', function () {
+            document.querySelectorAll('.cf-turnstile').forEach(function (el) {
+                el.setAttribute('data-sitekey', window.dynamicSiteKey);
+            });
+        });
     </script>
-    <script>document.title = window.location.hostname;</script> <!-- Runs immediately when the head loads to prevent visual lag -->
     <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
 </head>
 <body>
 
-	<h3>Basic login form</h3>
+    <h3>Basic login form</h3>
     <form action="/login" method="POST">
         <input type="text" name="username" placeholder="Username" autocomplete="username" required />
         <input type="password" name="password" placeholder="Password" autocomplete="current-password" required />
@@ -47,104 +55,102 @@
         <div class="cf-turnstile" id="turnstile-login"></div>
         <button type="submit">Log in</button>
     </form>
-	<br><hr><br>
+    <br><hr><br>
 
-	<h3>Advanced form with callbacks:</h3>
+    <h3>Advanced form with callbacks: basic submit</h3>
     <form action="/submit" method="POST">
-      <label for="name">Name:</label><br />
-      <input type="text" id="name" name="name" required /><br />
-      <label for="email">Email:</label><br />
-      <input type="email" id="email" name="email" required /><br />
-      <!-- Turnstile Widget -->
-      <div class="cf-turnstile" id="turnstile-submit"></div>
-      <br />
-      <button type="submit">Submit</button>
+        <label for="name">Name:</label><br />
+        <input type="text" id="name" name="name" required /><br />
+        <label for="email">Email:</label><br />
+        <input type="email" id="email" name="email" required /><br />
+        <!-- Turnstile Widget -->
+        <div class="cf-turnstile" id="turnstile-submit"></div>
+        <br />
+        <button type="submit">Submit</button>
     </form>
-	<br><hr><br>
+    <br><hr><br>
 
-	<h3>Advanced form with callbacks</h3>
-	<form action="/contact" method="POST" id="contact-form">
-	<input type="email" name="email" placeholder="Email" required />
-	<textarea name="message" placeholder="Message" required></textarea>
-	<!-- Widget with callbacks and custom configuration -->
-	<div
-		class="cf-turnstile"
-		id="turnstile-contact"
-		data-theme="auto"
-		data-size="flexible"
-		data-callback="onTurnstileSuccess"
-		data-error-callback="onTurnstileError"
-		data-expired-callback="onTurnstileExpired"
-	></div>
-	<button type="submit" id="submit-btn" disabled>Send Message</button>
-	</form>
-	<script>
-		function onTurnstileSuccess(token) {
-			console.log("Turnstile success:", token);
-			document.getElementById("submit-btn").disabled = false;
-		}
-		function onTurnstileError(errorCode) {
-			console.error("Turnstile error:", errorCode);
-			document.getElementById("submit-btn").disabled = true;
-		}
-		function onTurnstileExpired() {
-			console.warn("Turnstile token expired");
-			document.getElementById("submit-btn").disabled = true;
-		}
-	</script>
+    <h3>Advanced form with callbacks: contact form</h3>
+    <form action="/contact" method="POST" id="contact-form">
+        <input type="email" name="email" placeholder="Email" required />
+        <textarea name="message" placeholder="Message" required></textarea>
+        <!-- Widget with callbacks and custom configuration -->
+        <div
+            class="cf-turnstile"
+            id="turnstile-contact"
+            data-theme="auto"
+            data-size="flexible"
+            data-callback="onTurnstileSuccess"
+            data-error-callback="onTurnstileError"
+            data-expired-callback="onTurnstileExpired"
+        ></div>
+        <button type="submit" id="submit-btn" disabled>Send Message</button>
     </form>
-	<br><hr><br>
+    <script>
+        function onTurnstileSuccess(token) {
+            console.log("Turnstile success:", token);
+            document.getElementById("submit-btn").disabled = false;
+        }
+        function onTurnstileError(errorCode) {
+            console.error("Turnstile error:", errorCode);
+            document.getElementById("submit-btn").disabled = true;
+        }
+        function onTurnstileExpired() {
+            console.warn("Turnstile token expired");
+            document.getElementById("submit-btn").disabled = true;
+        }
+    </script>
+    <br><hr><br>
 
-	<h3>Multiple widgets with different configurations</h3>
-	<!-- Compact widget for newsletter signup -->
-	<form action="/newsletter" method="POST">
-	<input type="email" name="email" placeholder="Email" />
-	<div
-		class="cf-turnstile"
-		id="turnstile-newsletter"
-		data-size="compact"
-		data-action="newsletter"
-	></div>
-	<button type="submit">Subscribe</button>
+    <h3>Multiple widgets with different configurations</h3>
+    <!-- Compact widget for newsletter signup -->
+    <form action="/newsletter" method="POST">
+        <input type="email" name="email" placeholder="Email" />
+        <div
+            class="cf-turnstile"
+            id="turnstile-newsletter"
+            data-size="compact"
+            data-action="newsletter"
+        ></div>
+        <button type="submit">Subscribe</button>
     </form>
-	<br><hr><br>
+    <br><hr><br>
 
-	<h2>Normal widget for contact form</h2>
-	<form action="/contact" method="POST">
-	<input type="text" name="name" placeholder="Name" />
-	<input type="email" name="email" placeholder="Email" />
-	<textarea name="message" placeholder="Message"></textarea>
-	<div
-		class="cf-turnstile"
-		id="turnstile-contact2"vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
-		data-action="contact"
-		data-theme="dark"
-	></div>
-	<button type="submit">Send</button>
+    <h2>Normal widget for contact form</h2>
+    <form action="/contact" method="POST">
+        <input type="text" name="name" placeholder="Name" />
+        <input type="email" name="email" placeholder="Email" />
+        <textarea name="message" placeholder="Message"></textarea>
+        <div
+            class="cf-turnstile"
+            id="turnstile-contact2"
+            data-action="contact"
+            data-theme="dark"
+        ></div>
+        <button type="submit">Send</button>
     </form>
-	<br><hr><br>
+    <br><hr><br>
 
-	<h2>Multiple widgets with different configurations</h2>
-	<form action="/submit" method="POST">
-		<input type="text" name="data" />
-		<div class="cf-turnstile" id="turnstile-submit2"></div>
-		<!-- Hidden field automatically added: -->
-		<!-- <input type="hidden" name="cf-turnstile-response" value="TOKEN_VALUE" /> -->
-		<button type="submit">Submit</button>
+    <h2>Multiple widgets with different configurations (raw submit)</h2>
+    <form action="/submit" method="POST">
+        <input type="text" name="data" />
+        <div class="cf-turnstile" id="turnstile-submit2"></div>
+        <!-- Hidden field automatically added: -->
+        <!-- <input type="hidden" name="cf-turnstile-response" value="TOKEN_VALUE" /> -->
+        <button type="submit">Submit</button>
     </form>
-	<br><hr><br>
+    <br><hr><br>
 
-	<!--
-		Option	Description	Values
-		sitekey	Your widget's sitekey	Required string
-		theme	Visual theme	auto, light, dark
-		size	Widget size	normal, flexible, compact
-		callback	Success callback	Function
-		error-callback	Error callback	Function
-		execution	When to run the challenge	render, execute
-		appearance	When the widget is visible	always, execute, interaction-only
-	-->
-	
-  </body>
+    <!--
+        Option          Description                     Values
+        sitekey         Your widget's sitekey            Required string
+        theme           Visual theme                     auto, light, dark
+        size            Widget size                      normal, flexible, compact
+        callback        Success callback                 Function
+        error-callback  Error callback                    Function
+        execution       When to run the challenge        render, execute
+        appearance      When the widget is visible       always, execute, interaction-only
+    -->
+
+</body>
 </html>
-
