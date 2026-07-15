@@ -1,4 +1,5 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="256" height="256">
+<?xml version="1.0" encoding="utf-8"?>
+<svg version="1.2" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 256 256" width="256" height="256" overflow="visible" xml:space="preserve">
   <!-- Achtergrond -->
   <rect width="256" height="256" rx="40" fill="#0A1E6B" />
   
